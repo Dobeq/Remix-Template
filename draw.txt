@@ -1,0 +1,176 @@
+World.frameRate = 15;
+
+var colors = ["potion_blue", "potion_red", "potion_green", "potion_grey", "potion_dload"];
+var potions = [];
+var sprites = [];
+var types = [];
+var player;
+var dirt = "dirt";
+var stone = "stone";
+var grass = "grass";
+var lava = "lava";
+var tileWidth = 32;
+var tileHeight = 32;
+var offset = 16;
+var width = 12;
+var height = 12;
+var dead = false;
+var tempLength;
+var square;
+var greened = true;
+var recentlyUsedGreen = false;
+var level = 0;
+var thingsOnFloor = [];
+generateTerrain(width, height, level);
+generateFloorDict();
+spawnPlayer();
+generatePotionColors();
+placePotions();
+function draw() {
+  if(!dead){
+    background("white");
+    square = getSquare();
+    checkDead(square);
+    checkGreened(square);
+    checkPresses();
+    drawSprites();
+  }
+}
+function generateFloorDict(){
+  for(var i = 0;i < types.length;i++){
+    thingsOnFloor.push(-1);
+  }
+}
+
+function generatePotionColors(){
+  for(var i = 0;i < colors.length;i++){
+    potions.push(colors[Math.floor(Math.random * 5)]);
+    //effect based on potions[] index
+  }
+}
+function placePotions(){
+  for(var i = 0;i < potions.length;i++){
+    for(var j = 0;j < types.length;j++){
+      if(types[j] == "dirt"){
+        if(thingsOnFloor[j] == -1){
+          if(Math.random() <= 0.3){
+            thingsOnFloor[j] = i;
+            
+          }
+        } 
+      }
+    }
+  }
+}
+function generateTerrain(width, height, level){
+  for(var i = 0;i < width;i++){
+    for(var j = 0;j < height;j++){
+      var randIndex = Math.ceil(Math.random() * 4);
+      var seed = Math.random();
+      if(i === 0 || i == width - 1 || j === 0 || j == height - 1){
+        sprites.push(createSprite(i * tileWidth + offset, j * tileHeight + offset));
+        tempLength = types.push("stone");
+        sprites[tempLength - 1].setAnimation(stone + "_" + randIndex.toString());
+      }
+      else if(seed > 0.5 - level / 10){
+        if( i == 1 && j == 1){
+          sprites.push(createSprite(i * tileWidth + offset, j * tileHeight + offset));
+          tempLength = types.push("dirt");
+          sprites[tempLength - 1].setAnimation(dirt + "_" + randIndex.toString());
+          seed = -1;
+        }
+        else{
+          sprites.push(createSprite(i * tileWidth + offset, j * tileHeight + offset));
+          tempLength = types.push("lava");
+          sprites[tempLength - 1].setAnimation(lava + "_" + randIndex.toString());
+          seed = -1;
+        }
+        
+      }
+      else if(seed > 0.3 - level / 10){
+        sprites.push(createSprite(i * tileWidth + offset, j * tileHeight + offset));
+        tempLength = types.push("dirt");
+        sprites[tempLength - 1].setAnimation(dirt + "_" + randIndex.toString());
+        seed = -1;
+      }
+      else {
+        sprites.push(createSprite(i * tileWidth + offset, j * tileHeight + offset));
+        tempLength = types.push("grass");
+        sprites[tempLength - 1].setAnimation(grass + "_" + randIndex.toString());
+        seed = -1;
+      }
+    }
+  }
+}
+function spawnPlayer(){
+  player = createSprite(tileWidth + offset, tileWidth + offset);
+  player.setAnimation("player_green");
+}
+function checkPresses(){
+  if(keyWentDown("up")){
+    move(0, 32);
+  }
+  if(keyWentDown("down")){
+    move(0, -32);
+  }
+  if(keyWentDown("left")){
+    move(-32, 0);
+  }
+  if(keyWentDown("right")){
+    move(32, 0);
+  }
+}
+function move(dx, dy){
+  var target = [player.x + dx, player.y - dy];
+  if (types[target[0]/32-0.5 + (target[1] / 32 - 0.5) * width] != "stone"){
+    recentlyUsedGreen = false;
+    player.x = target[0];
+    player.y = target[1];
+    if(checkWin()){
+      levelUp();
+    }
+  }
+}
+function getSquare(){
+  return types[player.y / 32 - 0.5 + (player.x / 32 - 0.5) * width];
+}
+function checkDead(square){
+  if(square === "lava"){
+    if(greened === false && recentlyUsedGreen === false){
+      if(!checkWin()){
+        dead = true;
+      }
+      else{
+        levelUp();
+      }
+    }
+    else if(greened === true){
+      greened = false;
+      recentlyUsedGreen = true;
+      player.setAnimation("player");
+    }
+  }
+}
+function checkGreened(square){
+  if(square === "grass"){
+    player.setAnimation("player_green");
+    greened = true;
+  }
+}
+function emptyThings(){
+  sprites = [];
+  types = [];
+  player.x = 1;
+  player.y = 1;
+}
+function levelUp(){
+  console.log(level);
+  level++;
+  emptyThings();
+  generateTerrain(width, height, level);
+  spawnPlayer();
+  greened = true;
+}
+function checkWin(){
+  return player.x / 32 - 0.5=== width - 2 && player.y / 32 - 0.5 === height - 2;
+}
