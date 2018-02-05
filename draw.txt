@@ -1,6 +1,6 @@
-World.frameRate = 15;
+World.frameRate = 60;
 
-var colors = ["potion_blue", "potion_red", "potion_green", "potion_grey", "potion_dload"];
+var colors = ["#000000", "#333333", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF"];
 var potions = [];
 var sprites = [];
 var types = [];
@@ -20,12 +20,20 @@ var square;
 var greened = true;
 var recentlyUsedGreen = false;
 var level = 0;
-var thingsOnFloor = [];
+var thingsOnFloor = {};
+var up = false;
+var down = false;
+var right = false;
+var left = false;
 generateTerrain(width, height, level);
-generateFloorDict();
 spawnPlayer();
 generatePotionColors();
 placePotions();
+function generateFloorDict(){
+  for(var i = 0;i < types.length;i++){
+    thingsOnFloor[i] = -1;
+  }
+}
 function draw() {
   if(!dead){
     background("white");
@@ -33,15 +41,11 @@ function draw() {
     checkDead(square);
     checkGreened(square);
     checkPresses();
+    moveCheck();
     drawSprites();
   }
+  
 }
-function generateFloorDict(){
-  for(var i = 0;i < types.length;i++){
-    thingsOnFloor.push(-1);
-  }
-}
-
 function generatePotionColors(){
   for(var i = 0;i < colors.length;i++){
     potions.push(colors[Math.floor(Math.random * 5)]);
@@ -55,7 +59,6 @@ function placePotions(){
         if(thingsOnFloor[j] == -1){
           if(Math.random() <= 0.3){
             thingsOnFloor[j] = i;
-            
           }
         } 
       }
@@ -107,17 +110,33 @@ function spawnPlayer(){
   player.setAnimation("player_green");
 }
 function checkPresses(){
-  if(keyWentDown("up")){
-    move(0, 32);
+  if(keyDown("up")){
+    up = true;
   }
-  if(keyWentDown("down")){
-    move(0, -32);
+  if(keyDown("down")){
+    down = true;
   }
-  if(keyWentDown("left")){
-    move(-32, 0);
+  if(keyDown("left")){
+    left = true;
   }
-  if(keyWentDown("right")){
-    move(32, 0);
+  if(keyDown("right")){
+    right = true;
+  }
+}
+function moveCheck(){
+  if(World.frameCount % 30 === 0){
+    if(left === true){
+      move(-32, 0);
+    }
+    if(right === true){
+      move(32, 0);
+    }
+    if(down === true){
+      move(-32, 0);
+    }
+    if(up === true){
+      move(0, 32);
+    }
   }
 }
 function move(dx, dy){
