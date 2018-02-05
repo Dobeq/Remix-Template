@@ -27,6 +27,7 @@ var right = false;
 var left = false;
 generateTerrain(width, height, level);
 spawnPlayer();
+generateFloorDict();
 generatePotionColors();
 placePotions();
 function generateFloorDict(){
@@ -142,13 +143,20 @@ function moveCheck(){
 }
 function move(dx, dy){
   var target = [player.x + dx, player.y - dy];
-  if (types[target[0]/32-0.5 + (target[1] / 32 - 0.5) * width] != "stone"){
-    recentlyUsedGreen = false;
-    player.x = target[0];
-    player.y = target[1];
-    if(checkWin()){
-      levelUp();
+  var targetInt = target[0]/32-0.5 + (target[1] / 32 - 0.5) * width;
+  if (types[targetInt] != "stone"){
+    if(thingsOnFloor[targetInt] == -1){
+      recentlyUsedGreen = false;
+      player.x = target[0];
+      player.y = target[1];
+      if(checkWin()){
+        levelUp();
+      }
     }
+    else{
+      quaff(potions.getIndex(thingsOnFloor[targetInt]));
+    }
+    
   }
 }
 function getSquare(){
@@ -199,4 +207,7 @@ function resetPresses(){
   left = false;
   right = false;
   down = false;
+}
+function quaff(index){
+  
 }
