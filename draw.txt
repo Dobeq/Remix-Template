@@ -1,6 +1,6 @@
 World.frameRate = 60;
 
-var colors = ["#000000", "#333333", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF"];
+var colors = ["potion_red", "potion_green", "potion_blue", "potion_grey", "potion_dload"];
 var potions = [];
 var sprites = [];
 var types = [];
@@ -20,7 +20,7 @@ var square;
 var greened = true;
 var recentlyUsedGreen = false;
 var level = 0;
-var thingsOnFloor = {};
+var thingsOnFloor = [];
 var up = false;
 var down = false;
 var right = false;
@@ -31,7 +31,7 @@ generatePotionColors();
 placePotions();
 function generateFloorDict(){
   for(var i = 0;i < types.length;i++){
-    thingsOnFloor[i] = -1;
+    thingsOnFloor.push(-1);
   }
 }
 function draw() {
