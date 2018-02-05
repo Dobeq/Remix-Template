@@ -132,11 +132,12 @@ function moveCheck(){
       move(32, 0);
     }
     if(down === true){
-      move(-32, 0);
+      move(0, -32);
     }
     if(up === true){
       move(0, 32);
     }
+  resetPresses();
   }
 }
 function move(dx, dy){
@@ -192,4 +193,10 @@ function levelUp(){
 }
 function checkWin(){
   return player.x / 32 - 0.5=== width - 2 && player.y / 32 - 0.5 === height - 2;
+}
+function resetPresses(){
+  up = false;
+  left = false;
+  right = false;
+  down = false;
 }
