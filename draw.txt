@@ -4,6 +4,7 @@ var colors = ["potion_red", "potion_green", "potion_blue", "potion_grey", "potio
 var potions = [];
 var sprites = [];
 var types = [];
+var potionSprites = [];
 var player;
 var dirt = "dirt";
 var stone = "stone";
@@ -49,7 +50,7 @@ function draw() {
 }
 function generatePotionColors(){
   for(var i = 0;i < colors.length;i++){
-    potions.push(colors[Math.floor(Math.random * 5)]);
+    potions.push(colors[Math.floor(Math.random() * 5)]);
     //effect based on potions[] index
   }
 }
@@ -60,6 +61,8 @@ function placePotions(){
         if(thingsOnFloor[j] == -1){
           if(Math.random() <= 0.3){
             thingsOnFloor[j] = i;
+            potionSprites.push(createSprite(j % width * tileWidth + offset, j / width * tileWidth + offset));
+            potionSprites[potionSprites.length - 1].setAnimation(potions[i]);
           }
         } 
       }
@@ -154,7 +157,13 @@ function move(dx, dy){
       }
     }
     else{
-      quaff(potions.getIndex(thingsOnFloor[targetInt]));
+      recentlyUsedGreen = false;
+      quaff(potions.indexOf(thingsOnFloor[targetInt]));
+      player.x = target[0];
+      player.y = target[1];
+      if(checkWin()){
+        levelUp();
+      }
     }
     
   }
@@ -209,5 +218,20 @@ function resetPresses(){
   down = false;
 }
 function quaff(index){
-  
+  if(index === 0){
+    recentlyUsedGreen = true;
+  }
+  else if(index == 1){
+    greened = true;
+  }
+  else if(index == 2){
+    levelUp();
+  }
+  else if(index == 3){
+    generateFloorDict();
+    placePotions();
+  }
+  else{
+    dead = true;
+  }
 }
